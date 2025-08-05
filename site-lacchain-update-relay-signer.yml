@@ -1,0 +1,40 @@
+---
+- name: Update LACChain Relay Signer
+  hosts: all
+  user: root
+  become: yes
+  gather_facts: yes
+  vars:
+    relay_signer_version: "feature/nonce"  # Change this to the desired version/branch
+  vars_prompt:
+    - name: "relay_signer_version"
+      prompt: "Enter the Relay Signer version/branch to update to"
+      default: "feature/nonce"
+      private: no
+  tasks:
+    - name: Check if this is a writer node with relay signer
+      stat:
+        path: "/root/lacchain/gas-relay-signer"
+      register: relay_signer_check
+
+    - name: Fail if relay signer is not installed
+      fail:
+        msg: "Relay Signer is not installed on this node. This playbook is only for nodes with relay signer already installed."
+      when: not relay_signer_check.stat.exists
+
+    - name: Display update information
+      debug:
+        msg:
+          - "🔄 Starting Relay Signer update process"
+          - "📍 Target version/branch: {{ relay_signer_version }}"
+          - "🏠 Installation path: /root/lacchain/gas-relay-signer"
+
+    - name: Update Relay Signer
+      include_tasks: "roles/lacchain-writer-node/tasks/update-relay-signer.yaml"
+
+    - name: Display completion message
+      debug:
+        msg:
+          - "✅ Relay Signer update completed successfully!"
+          - "🔍 Check service status with: systemctl status relaysigner"
+          - "📝 View logs with: journalctl -u relaysigner -f"

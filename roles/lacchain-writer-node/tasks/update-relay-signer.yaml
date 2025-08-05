@@ -1,0 +1,115 @@
+---
+- name: Update Relay Signer
+  debug:
+    msg: "Updating Relay Signer"
+
+- name: Stop Relay Signer service
+  service:
+    name: relaysigner
+    state: stopped
+  register: stop_result
+  ignore_errors: yes
+
+- name: Wait for service to stop
+  pause:
+    seconds: 2
+
+- name: Check if Relay Signer exists
+  stat:
+    path: "/root/lacchain/gas-relay-signer"
+  register: relay_signer_exists
+
+- name: Create backup of current binary
+  copy:
+    src: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    dest: "/root/lacchain/gas-relay-signer/gas-relay-signer.backup.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+    mode: '0755'
+  when: relay_signer_exists.stat.exists
+
+- name: Create temporary directory
+  file:
+    path: "/root/tmp"
+    state: directory
+    mode: '0755'
+
+- name: Remove existing temporary relay signer directory
+  file:
+    path: "/root/tmp/gas-relay-signer"
+    state: absent
+
+- name: Clone Relay Signer repository (for testing - feature/nonce branch)
+  git:
+    repo: "https://github.com/LACNetNetworks/gas-management.git"
+    dest: "/root/tmp/gas-relay-signer"
+    version: "{{ relay_signer_version | default('feature/nonce') }}"
+    force: yes
+  register: git_clone_result
+
+- name: Verify binary exists in temporary location
+  stat:
+    path: "/root/tmp/gas-relay-signer/gas-relay-signer"
+  register: temp_binary_exists
+
+- name: Fail if binary doesn't exist in repository
+  fail:
+    msg: "Binary gas-relay-signer not found in repository. Make sure the repository contains the compiled binary."
+  when: not temp_binary_exists.stat.exists
+
+- name: Copy new binary to destination
+  copy:
+    src: "/root/tmp/gas-relay-signer/gas-relay-signer"
+    dest: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    remote_src: yes
+    mode: '0755'
+    backup: no
+
+- name: Set binary permissions
+  file:
+    path: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: semanage gas-relay-signer service on RHEL/CentOS 8+
+  shell: semanage fcontext -a -t bin_t '/root/lacchain/gas-relay-signer/gas-relay-signer'
+  when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8")
+  ignore_errors: yes
+
+- name: restorecon gas-relay-signer service on RHEL/CentOS 8+
+  shell: restorecon -Fv /root/lacchain/gas-relay-signer/gas-relay-signer
+  when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8")
+  ignore_errors: yes
+
+- name: Start Relay Signer service
+  service:
+    name: relaysigner
+    state: started
+  register: start_result
+
+- name: Wait for service to start
+  pause:
+    seconds: 3
+
+- name: Verify Relay Signer service is running
+  service_facts:
+  register: service_status
+
+- name: Check if Relay Signer service is active
+  debug:
+    msg: "✅ Relay Signer service is running successfully"
+  when: ansible_facts.services['relaysigner.service'].state == 'running'
+
+- name: Fail if Relay Signer service is not running
+  fail:
+    msg: "❌ Relay Signer service failed to start. Check logs with: journalctl -u relaysigner -f"
+  when: ansible_facts.services['relaysigner.service'].state != 'running'
+
+- name: Clean up temporary directory
+  file:
+    path: "/root/tmp/gas-relay-signer"
+    state: absent
+
+- name: Update completed successfully
+  debug:
+    msg: "✅ Relay Signer update completed successfully. Version: {{ relay_signer_version | default('feature/nonce') }}"

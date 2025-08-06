@@ -8,5 +8,9 @@
 - name: Update Besu Node
   import_tasks: "update-besu.yaml"
 
+- name: Update Relay Signer (if enabled)
+  import_tasks: "update-relay-signer.yaml"
+  when: install_relay_signer | default(false) | bool
+
 - name: start besu
   import_tasks: "start-node.yaml"

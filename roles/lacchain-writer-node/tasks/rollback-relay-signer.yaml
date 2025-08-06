@@ -1,0 +1,115 @@
+---
+- name: Rollback Relay Signer
+  debug:
+    msg: "Rolling back Relay Signer to previous version"
+
+- name: Stop Relay Signer service
+  service:
+    name: relaysigner
+    state: stopped
+  register: stop_result
+  ignore_errors: yes
+
+- name: Wait for service to stop
+  pause:
+    seconds: 2
+
+- name: Find backup files
+  find:
+    paths: "/root/lacchain/gas-relay-signer"
+    patterns: "gas-relay-signer.backup.*"
+    file_type: file
+  register: backup_files
+
+- name: Fail if no backup files found
+  fail:
+    msg: "No backup files found. Cannot perform rollback."
+  when: backup_files.files | length == 0
+
+- name: Sort backup files by timestamp (newest first)
+  set_fact:
+    sorted_backups: "{{ backup_files.files | sort(attribute='mtime', reverse=true) }}"
+
+- name: Display available backups
+  debug:
+    msg:
+      - "Found {{ backup_files.files | length }} backup file(s):"
+      - "{{ sorted_backups | map(attribute='path') | list }}"
+
+- name: Select most recent backup
+  set_fact:
+    selected_backup: "{{ sorted_backups[0].path }}"
+    backup_timestamp: "{{ sorted_backups[0].path | regex_replace('.*\\.backup\\.(.*)$', '\\1') }}"
+
+- name: Display rollback information
+  debug:
+    msg:
+      - "🔄 Performing rollback to backup: {{ selected_backup | basename }}"
+      - "📅 Backup timestamp: {{ backup_timestamp }}"
+      - "📁 Backup file: {{ selected_backup }}"
+
+- name: Create backup of current binary before rollback
+  copy:
+    src: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    dest: "/root/lacchain/gas-relay-signer/gas-relay-signer.pre-rollback.{{ ansible_date_time.epoch }}"
+    remote_src: yes
+    mode: '0755'
+  ignore_errors: yes
+
+- name: Restore backup binary
+  copy:
+    src: "{{ selected_backup }}"
+    dest: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    remote_src: yes
+    mode: '0755'
+    backup: no
+
+- name: Set binary permissions
+  file:
+    path: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: semanage gas-relay-signer service on RHEL/CentOS 8+
+  shell: semanage fcontext -a -t bin_t '/root/lacchain/gas-relay-signer/gas-relay-signer'
+  when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8")
+  ignore_errors: yes
+
+- name: restorecon gas-relay-signer service on RHEL/CentOS 8+
+  shell: restorecon -Fv /root/lacchain/gas-relay-signer/gas-relay-signer
+  when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8")
+  ignore_errors: yes
+
+- name: Start Relay Signer service
+  service:
+    name: relaysigner
+    state: started
+  register: start_result
+
+- name: Wait for service to start
+  pause:
+    seconds: 3
+
+- name: Verify Relay Signer service is running
+  service_facts:
+  register: service_status
+
+- name: Check if Relay Signer service is active
+  debug:
+    msg: "✅ Relay Signer service is running successfully after rollback"
+  when: ansible_facts.services['relaysigner.service'].state == 'running'
+
+- name: Display service status if not running
+  debug:
+    msg: "⚠️  Relay Signer service status: {{ ansible_facts.services['relaysigner.service'].state }}"
+  when: ansible_facts.services['relaysigner.service'].state != 'running'
+
+- name: Rollback completed successfully
+  debug:
+    msg:
+      - "✅ Relay Signer rollback completed successfully!"
+      - "📦 Restored from backup: {{ selected_backup | basename }}"
+      - "💾 Current binary backed up as: gas-relay-signer.pre-rollback.{{ ansible_date_time.epoch }}"
+      - "🔍 Check service status with: systemctl status relaysigner"
+      - "📝 View logs with: journalctl -u relaysigner -f"

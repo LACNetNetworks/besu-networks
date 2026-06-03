@@ -9,11 +9,6 @@
     network: "openprotestnet"
   when: (networkT == '1')
 
-- name: set legacy-protestnet as network chosen
-  set_fact:
-    network: "legacyprotestnet"
-  when: (networkT == '2')    
-
 - name: Deploying node
   debug:
     msg: You are deploying a WRITER on {{network}}
@@ -27,11 +22,6 @@
   set_fact:
     node_ip: "{{ip_address.stdout}}"
   when: node_ip is not defined
-
-- name: setting besu version
-  set_fact:
-    besu_release_version: "21.1.6"
-  when: (networkT == '2')
 
 - name: setting orion ip
   set_fact:

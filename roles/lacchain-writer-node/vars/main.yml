@@ -9,16 +9,13 @@ leveldb_release: "leveldb-1.20"
 #node_type: "validator"  use this variable in future
 net_id_openprotestnet: 648540
 net_id_mainnet: 648541
-net_id_legacyprotestnet: 648529
 statsserver_openprotestnet: http://34.138.63.51:3000
 statsserver_mainnet: http://34.138.136.105:3000
-statsserver_legacyprotestnet: http://35.236.236.77:3000
 time: '{{lookup(''pipe'',''date "+%Y-%m-%d %H:%M:%S"'')}}'
 
 # contract address
 relayhub_address_openprotestnet: "0xa4B5eE2906090ce2cDbf5dfff944db26f397037D"
 relayhub_address_mainnet: "0xEAA5420AF59305c5ecacCB38fcDe70198001d147"
-relayhub_address_legacyprotestnet: "0xd4C70F66714D93a4f6553d379288e84bC45053da"
 
 localpermissioning_address: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 

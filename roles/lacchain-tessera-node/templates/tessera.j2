@@ -7,7 +7,7 @@
    "jdbc" : {
       "username" : "user1",
       "password" : "Password",
-      "url" : "jdbc:h2:/root/lacchain/tessera/tessera",
+      "url" : "jdbc:h2:/root/lnet/tessera/tessera",
       "autoCreateTables" : true,
       "fetchSize" : 0
    },
@@ -24,16 +24,16 @@
       "sslConfig" : {
          "tls" : "OFF",
          "generateKeyStoreIfNotExisted" : false,
-         "serverTlsKeyPath" : "/root/lacchain/orion/certificates/orion_cer.key",
-         "serverTlsCertificatePath" : "/root/lacchain/orion/certificates/orion_cer.pem",
-         "serverTrustCertificates" : [ "/root/lacchain/orion/certificates/orion_ca.pem"],
+         "serverTlsKeyPath" : "/root/lnet/orion/certificates/orion_cer.key",
+         "serverTlsCertificatePath" : "/root/lnet/orion/certificates/orion_cer.pem",
+         "serverTrustCertificates" : [ "/root/lnet/orion/certificates/orion_ca.pem"],
          "serverTrustMode" : "CA",
-         "clientTlsKeyPath" : "/root/lacchain/orion/certificates/orion_cer.key",
-         "clientTlsCertificatePath" : "/root/lacchain/orion/certificates/orion_cer.pem",
-         "clientTrustCertificates" : [ "/root/lacchain/orion/certificates/orion_ca.pem"],
+         "clientTlsKeyPath" : "/root/lnet/orion/certificates/orion_cer.key",
+         "clientTlsCertificatePath" : "/root/lnet/orion/certificates/orion_cer.pem",
+         "clientTrustCertificates" : [ "/root/lnet/orion/certificates/orion_ca.pem"],
          "clientTrustMode" : "CA",
-         "knownClientsFile" : "/root/lacchain/orion/tls-known-clients",
-         "knownServersFile" : "/root/lacchain/orion/tls-known-servers",
+         "knownClientsFile" : "/root/lnet/orion/tls-known-clients",
+         "knownServersFile" : "/root/lnet/orion/tls-known-servers",
          "clientAuth" : true
       },
       "bindingAddress" : "http://0.0.0.0:4040",
@@ -45,10 +45,10 @@
       "url" : "http://192.168.1.1:4040"
    },
    "keys" : {
-      "passwordFile" : "/root/lacchain/tmp/.account_pass",
+      "passwordFile" : "/root/lnet/tmp/.account_pass",
       "keyData" : {
-         "privateKeyPath" : "/root/lacchain/tessera/keystore/nodeKey.key",
-         "publicKeyPath" : "/root/lacchain/tessera/keystore/nodeKey.pub"
+         "privateKeyPath" : "/root/lnet/tessera/keystore/nodeKey.key",
+         "publicKeyPath" : "/root/lnet/tessera/keystore/nodeKey.pub"
       }
    },
    "alwaysSendTo" : [ ],

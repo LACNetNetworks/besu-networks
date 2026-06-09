@@ -5,12 +5,12 @@
 
 - name: create Health Check directory
   file:
-    path: "/root/lacchain/health-check"
+    path: "/root/lnet/health-check"
     mode: "0755"
     state: directory
 
 - name: Move executable health-check program
-  shell: mv /root/go/src/healthCheck/health-check /root/lacchain/health-check/
+  shell: mv /root/go/src/healthCheck/health-check /root/lnet/health-check/
 
 - name: Copy service file to systemd
   copy:

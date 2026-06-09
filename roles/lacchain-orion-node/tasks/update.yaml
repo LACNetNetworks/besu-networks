@@ -26,7 +26,7 @@
     enabled: yes
 
 - name: Verifying certificate is created
-  shell: ls /root/lacchain/orion/certificates | grep orion_cer.pem
+  shell: ls /root/lnet/orion/certificates | grep orion_cer.pem
   register: certificate
   ignore_errors: yes
 

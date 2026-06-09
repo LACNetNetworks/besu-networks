@@ -1,22 +1,22 @@
 ---
 - name: Checking if Relay Signer exists
   stat:
-    path: "/root/lacchain/gas-relay-signer/config.toml"
+    path: "/root/lnet/gas-relay-signer/config.toml"
   register: relay_signer
 
 - name: Download Relay Signer code
   git:
         repo: "https://github.com/LACNetNetworks/gas-management.git"
-        dest: "/root/lacchain/gas-relay-signer"
+        dest: "/root/lnet/gas-relay-signer"
         version: v1.0.1
   when: not relay_signer.stat.exists
 
 - name: semanage gas-relay-signer service on centos{{ansible_distribution_major_version}}
-  shell: semanage fcontext -a -t bin_t '/root/lacchain/gas-relay-signer/gas-relay-signer'
+  shell: semanage fcontext -a -t bin_t '/root/lnet/gas-relay-signer/gas-relay-signer'
   when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8") 
 
 - name: restorecon gas-relay-signer service on centos{{ansible_distribution_major_version}}
-  shell: restorecon -Fv /root/lacchain/gas-relay-signer/gas-relay-signer
+  shell: restorecon -Fv /root/lnet/gas-relay-signer/gas-relay-signer
   when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution  |lower == 'rocky' or ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8") 
 
 
@@ -24,12 +24,12 @@
 - name: Generate Relay Signer configuration file
   template:
     src: "relay-signer-config.j2"
-    dest: "~/lacchain/gas-relay-signer/config.toml"
+    dest: "~/lnet/gas-relay-signer/config.toml"
     mode: 0644
   when: not relay_signer.stat.exists 
 
 - name: Get Key
-  shell: cat ~/lacchain/data/key
+  shell: cat ~/lnet/data/key
   register: key
   when: not relay_signer.stat.exists 
 

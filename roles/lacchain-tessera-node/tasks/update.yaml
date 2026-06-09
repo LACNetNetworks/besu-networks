@@ -26,7 +26,7 @@
     enabled: yes
 
 - name: Verifying certificate is created
-  shell: ls /root/lacchain/tessera/certificates | grep tessera_cer.pem
+  shell: ls /root/lnet/tessera/certificates | grep tessera_cer.pem
   register: certificate
   ignore_errors: yes
 

@@ -9,13 +9,13 @@
     mode: "{{ item.mode }}"
     state: directory
   with_items:
-    - { dest: "~/lacchain/orion", mode: "0440" }
-    - { dest: "~/lacchain/orion/keystore", mode: "0440" }
-    - { dest: "~/lacchain/tmp", mode: "0440" }
+    - { dest: "~/lnet/orion", mode: "0440" }
+    - { dest: "~/lnet/orion/keystore", mode: "0440" }
+    - { dest: "~/lnet/tmp", mode: "0440" }
 
 - name: copy password to file
   copy:
-    dest: ~/lacchain/tmp/.account_pass
+    dest: ~/lnet/tmp/.account_pass
     content: |
       {{password}}
 
@@ -25,24 +25,24 @@
 - name: generate configuration orion file
   template:
     src: "orion.j2"
-    dest: "~/lacchain/orion/orion.conf"
+    dest: "~/lnet/orion/orion.conf"
     force: yes
 
 - name: generate pair keys
-  shell: cat ~/lacchain/tmp/.account_pass | orion --generatekeys nodeKey
+  shell: cat ~/lnet/tmp/.account_pass | orion --generatekeys nodeKey
   args:
-    chdir: ~/lacchain/orion/keystore
+    chdir: ~/lnet/orion/keystore
 
 - name: Copy Key Public from Orion
   fetch:
-    src: ~/lacchain/orion/keystore/nodeKey.pub
+    src: ~/lnet/orion/keystore/nodeKey.pub
     dest: "{{ playbook_dir }}/roles/lacchain-writer-node/files/"
     flat: yes
 
 - name: Generate shell script to execute orion service
   template:
     src: "startorion.j2"
-    dest: "~/lacchain/start-orion.sh"
+    dest: "~/lnet/start-orion.sh"
     mode: 0775
     force: yes
 

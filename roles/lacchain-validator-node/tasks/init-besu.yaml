@@ -13,10 +13,10 @@
     mode: "{{ item.mode }}"
     state: directory
   with_items:
-    - { dest: "~/lacchain/data/keystore", mode: "0440" }
-    - { dest: "~/lacchain/logs", mode: "0440" }
-    - { dest: "~/lacchain/tmp", mode: "0440" }
-    - { dest: "~/lacchain/scripts", mode: "0440"}
+    - { dest: "~/lnet/data/keystore", mode: "0440" }
+    - { dest: "~/lnet/logs", mode: "0440" }
+    - { dest: "~/lnet/tmp", mode: "0440" }
+    - { dest: "~/lnet/scripts", mode: "0440"}
 
 - name: initializing pantheon from genesis.json
   debug:
@@ -25,11 +25,11 @@
 - name: Copy genesis ibft2.0 file
   copy:
     src: "{{ role_path }}/files/genesis-{{network}}.json"
-    dest: ~/lacchain/data/genesis.json
+    dest: ~/lnet/data/genesis.json
     mode: 0755
 
 - name: Generate node key
-  shell: pantheon --data-path=/root/lacchain/data public-key export-address --to=/root/lacchain/data/nodeAddress | grep -oE "0x[A-Fa-f0-9]*" | sed 's/0x//'
+  shell: pantheon --data-path=/root/lnet/data public-key export-address --to=/root/lnet/data/nodeAddress | grep -oE "0x[A-Fa-f0-9]*" | sed 's/0x//'
   register: enode_key
 
 - name: print enode key
@@ -39,23 +39,23 @@
 - name: Generate shell script to execute pantheon service
   template:
     src: "startpantheon-{{network}}.j2"
-    dest: "~/lacchain/start-pantheon.sh"
+    dest: "~/lnet/start-pantheon.sh"
     mode: 0775
     force: yes
 
 - name: semanage besu service on centos {{ansible_distribution_major_version}}
-  shell: sudo semanage fcontext -a -t bin_t '/root/lacchain/start-pantheon.sh'
+  shell: sudo semanage fcontext -a -t bin_t '/root/lnet/start-pantheon.sh'
   when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'redhat' or ansible_distribution |lower == 'rocky') and ansible_distribution_major_version >= "8")
 
 - name: restorecon besu service on centos {{ansible_distribution_major_version}}
-  shell: sudo restorecon -Fv /root/lacchain/start-pantheon.sh
+  shell: sudo restorecon -Fv /root/lnet/start-pantheon.sh
   when: ((ansible_distribution |lower == 'centos'  or ansible_distribution |lower == 'redhat' or ansible_distribution |lower == 'rocky') and ansible_distribution_major_version >= "8") 
 
 
 - name: Generate Besu configuration file
   template:
     src: "pantheon-config-{{network}}.j2"
-    dest: "~/lacchain/config.toml"
+    dest: "~/lnet/config.toml"
     mode: 0775
 
 - name: Copy service file to systemd
@@ -67,7 +67,7 @@
 - name: Copy Log configuration file to lacchain
   copy:
     src: "{{ role_path }}/files/log.xml"
-    dest: "~/lacchain/log.xml"
+    dest: "~/lnet/log.xml"
     mode: 0775
 
 - name: Enable service pantheon

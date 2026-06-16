@@ -1,6 +1,6 @@
 # Generate image Docker to deploy nodes besu Lacnet.
 
-* Below you will find instructions for the compile image docker for nodes besu, relay signer, nginx proxy and tessera.
+* Below you will find instructions for the compile image docker for nodes besu, relay signer and nginx proxy.
 
 
 * **Besu image**
@@ -20,12 +20,6 @@ Generate a image nginx proxy reverse to writer node with the following command:
 
     ```shell
     $ ./image-nginx-writer.sh
-    ```
-* **Tessera image**
-Generate a image tessera with the following command:
-
-    ```shell
-    $ ./image-tessera.sh
     ```
 
 * Push image to Docker hub 

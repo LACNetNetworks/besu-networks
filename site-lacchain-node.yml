@@ -22,16 +22,6 @@
     - debug:
         msg: "Starting Installation"
 
-- hosts: tessera
-  gather_facts: yes
-  become: yes
-  vars:
-    install: true
-
-  roles:
-    - role: lacchain-tessera-node
-      when: tessera | bool
-
 - hosts: node
   gather_facts: yes
   become: yes
@@ -52,6 +42,3 @@
       when: (nodeTypeT == '1')  
     - role: lacchain-validator-node
       when: (nodeTypeT == '0')
-    - role: lacchain-tessera-node
-      when: (nodeTypeT == '3')  
-        

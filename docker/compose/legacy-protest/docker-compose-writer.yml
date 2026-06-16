@@ -54,25 +54,7 @@ services:
       - ./writer1/data:/opt/secret
     networks:
       - lacchain
-  ethstats:
-    image: alethio/ethstats-cli
-    container_name: writer-ethstats-protest
-    restart: on-failure
-    environment:
-      NODE_NAME: test-protest-writer-docker
-      NODE_EMAIL: tech.support@lac-net.net
-    entrypoint:
-      - /bin/sh 
-      - -c  
-    command:
-      - |
-       echo email $${NODE_EMAIL} 
-       ./bin/ethstats-cli.js -vd --register --account-email $${NODE_EMAIL} --node-name $${NODE_NAME} --server-url  http://35.236.236.77:3000 --client-url ws://writer-besu-protest:4546
-    volumes:
-      - ./writer1/data:/opt/secret
-    networks:
-      - lacchain
-  
+
 networks:
     lacchain:
         driver: bridge

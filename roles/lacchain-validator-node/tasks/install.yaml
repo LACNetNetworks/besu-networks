@@ -61,9 +61,6 @@
 - name: init Rotation Validator
   import_tasks: "init-rotation-validator.yaml"
 
-- name: start ethstats client
-  import_tasks: "start-ethstats-client.yaml"
-
 - name: start Rotation Validator
   import_tasks: "start-rotation-validator.yaml"
 

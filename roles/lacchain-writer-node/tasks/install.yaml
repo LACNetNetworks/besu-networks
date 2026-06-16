@@ -68,7 +68,4 @@
   import_tasks: "install-relay-signer.yaml"
   when: (networkT == '0') or (networkT == '1') # relay-signer is disable on pro-testnet
 
-- name: start ethstats client             
-  import_tasks: "start-ethstats-client.yaml"
-
 

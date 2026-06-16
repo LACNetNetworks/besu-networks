@@ -9,8 +9,6 @@ leveldb_release: "leveldb-1.20"
 #node_type: "validator"  use this variable in future
 net_id_openprotestnet: 648540
 net_id_mainnet: 648541
-statsserver_openprotestnet: http://34.138.63.51:3000
-statsserver_mainnet: http://34.138.136.105:3000
 time: '{{lookup(''pipe'',''date "+%Y-%m-%d %H:%M:%S"'')}}'
 
 # contract address

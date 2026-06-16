@@ -117,7 +117,6 @@ Please, choose which type of node are you deploying:
 
 [0]:mainnet-omega
 [1]:open-protestnet
-[2]:legacy-protestnet (DEPRECATED)
 
 Please, choose in which network are you deploying:
 ```

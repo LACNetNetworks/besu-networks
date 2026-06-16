@@ -30,7 +30,7 @@
       prompt: "************************\n[0]:validator\n[1]:boot\n[2]:writer\nPlease, choose which type of node are you deploying"
       private: no
     - name: "networkT"
-      prompt: "************************\n[0]:mainnet-omega\n[1]:open-protestnet\nPlease, choose in which network are you deploying"
+      prompt: "************************\n[0]:mainnet-omega\n[1]:testnet\nPlease, choose in which network are you deploying"
       private: no
 
   vars:

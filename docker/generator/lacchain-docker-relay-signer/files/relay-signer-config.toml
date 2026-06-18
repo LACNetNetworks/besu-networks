@@ -6,12 +6,6 @@ nodeKeyPath = "/opt/secret/key"
 nodeAddressPath = "/opt/secret/nodeAddress"
 port = 9001
 
-[keystore]
-agent = "/home/adrian/.ethereum/keystore/UTC--2020-06-26T19-00-23.241896464Z--bceda2ba9af65c18c7992849c312d1db77cf008e"
-
-[passphrase]
-agent = "Peru123."
-
 [security]
 permissionsEnabled = false
 accountContractAddress = "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"

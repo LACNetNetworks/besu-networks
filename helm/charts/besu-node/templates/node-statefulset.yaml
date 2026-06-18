@@ -45,37 +45,8 @@ spec:
       serviceAccount: sa-lacchain
       {{- end }}    
       containers:
-{{- if  eq .Values.deploy.typenode "tessera"}}
-        - name:  {{ .Release.Name }}-tessera
-          image: {{ .Values.image.tessera.repository }}:{{ .Values.image.tessera.tag }}
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: 250m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1024Mi
-          env:
-            - name: PUBLIC_IP
-              value: "{{ .Values.deploy.publicIP }}"
-            - name: DNS_NAME
-              value:  {{ .Values.deploy.dnsName }}
-            - name : HOST_TESSERA_PEER
-              value: "{{ .Values.deploy.tessera.peer }}"
-          volumeMounts:
-            - name: data
-              mountPath: data
-          ports:
-            - containerPort: 4040
-              name: tessera
-              protocol: TCP
-            - containerPort: 4444
-              name: tessera-besu
-              protocol: TCP 
-{{- end }} #end node tessera
-{{- if eq .Values.deploy.relaysigner "true" }}    
-{{- if or ( eq .Values.deploy.typenode "writer") ( eq .Values.deploy.typenode "tessera")}}
+{{- if eq .Values.deploy.relaysigner "true" }}
+{{- if eq .Values.deploy.typenode "writer" }}
         - name: {{ .Release.Name }}-relay-signer
 {{- if eq .Values.deploy.network "open-protest-net" }}       
           image: {{ .Values.image.relay.repository }}:{{ .Values.image.relay.openprotest.tag }}
@@ -226,11 +197,7 @@ spec:
               /opt/besu/bin/besu --genesis-file={{ .Values.node.besu.genesisFilePath  }} --data-path={{ .Values.node.besu.dataPath }} public-key  export-address --to={{ .Values.node.besu.dataPath }}/nodeAddress ;
 {{- end }} 
               sleep 3;
-{{- if eq .Values.deploy.typenode "tessera" }}
-              /opt/besu/bin/besu  --config-file=/etc/besu/config.toml  --node-private-key-file={{ .Values.node.besu.dataPath }}/key  --privacy-marker-transaction-signing-key-file={{ .Values.node.besu.dataPath }}/key
-{{- else }}
-              /opt/besu/bin/besu  --config-file=/etc/besu/config.toml  --node-private-key-file={{ .Values.node.besu.dataPath }}/key  
-{{- end }} 
+              /opt/besu/bin/besu  --config-file=/etc/besu/config.toml  --node-private-key-file={{ .Values.node.besu.dataPath }}/key
       securityContext:
         fsGroup: 2000
       volumes:
@@ -243,61 +210,5 @@ spec:
       - name: besu-config
         configMap:
           name: {{ include "besu-node.fullname" . }}-besu-config
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name:  {{ template "besu-node.fullname" . }}-ethstats
-  labels:
-    app:  {{ template "besu-node.fullname" . }}-ethstats
-  namespace: {{ .Release.Namespace }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: {{ template "besu-node.fullname" . }}-ethstats
-  serviceName: {{ include "besu-node.fullname" . }}-ethstats
-  template:
-    metadata:
-      labels:
-        app: {{ template "besu-node.fullname" . }}-ethstats
-    spec:
-      {{- if ( eq .Values.cluster.type "aro" ) }}
-      serviceAccount: sa-lacchain
-      {{- end }}
-      containers:
-        - name: {{ template "besu-node.fullname" . }}-ethstats
-          image: alethio/ethstats-cli
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: ethstats-data
-              {{- if ( eq .Values.cluster.type "aro" ) }}
-              mountPath: /tmp/.config/configstore/
-              {{- else }}
-              mountPath: /root/.config/configstore/
-              {{- end }}
-          command:
-            - /bin/sh
-            - -c
-          args:
-            - |
-             exec
-              {{- if eq .Values.deploy.network "open-protest-net" }}
-             ./bin/ethstats-cli.js -vd --register --account-email {{ .Values.deploy.nodeEmail }} --node-name "{{ .Values.deploy.nodeName }}" --server-url  {{ .Values.image.eth.server.openprotest }} --client-url ws://{{ template "besu-node.fullname" . }}:4546
-             {{- else if eq .Values.deploy.network "protest-net" }}
-             ./bin/ethstats-cli.js -vd --register --account-email {{ .Values.deploy.nodeEmail }} --node-name "{{ .Values.deploy.nodeName }}" --server-url  {{ .Values.image.eth.server.protest }} --client-url ws://{{ template "besu-node.fullname" . }}:4546
-            {{- else if eq .Values.deploy.network "main-net" }}
-             ./bin/ethstats-cli.js -vd --register --account-email {{ .Values.deploy.nodeEmail }} --node-name "{{ .Values.deploy.nodeName }}" --server-url  {{ .Values.image.eth.server.mainnet }} --client-url ws://{{ template "besu-node.fullname" . }}:4546
-            {{- end }}   
-          ports:
-            - containerPort: 9001
-              name: ethstats
-              protocol: TCP
-      securityContext:
-        fsGroup: 2000
-      volumes:
-        - name: ethstats-data
-          persistentVolumeClaim:
-            claimName: {{ include "besu-node.fullname" . }}-ethstats-pvc 
 
 

@@ -1,9 +1,0 @@
----
-- name: Start Tessera Enclave
-  debug:
-      msg: Starting Tessera Node
-
-- name: Execute Tessera service
-  service:
-      name: tessera
-      state: started

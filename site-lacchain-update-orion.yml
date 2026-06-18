@@ -1,7 +1,0 @@
-- hosts: tessera
-  gather_facts: yes
-  become: yes
-  vars:
-    update: true
-  roles:
-    - lacchain-tessera-node

@@ -60,8 +60,5 @@
   import_tasks: "start-node.yaml"
   when: first_node|bool
 
-- name: start ethstats client
-  import_tasks: "start-ethstats-client.yaml"
-
 - name: clean files
   import_tasks: "clean-files.yaml"

@@ -43,7 +43,7 @@ Following the instructions to [install helm](https://helm.sh/docs/intro/install/
 
 ### Clone Repository ####
 
-To configure and install Besu and Tessera, you must clone this git repository in your **local machine**.
+To configure and install Besu, you must clone this git repository in your **local machine**.
 
 ```shell
 $ git clone https://github.com/LACNetNetworks/besu-networks

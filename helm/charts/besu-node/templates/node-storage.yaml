@@ -83,18 +83,4 @@ spec:
       storage: {{ .Values.volumen.resources.storage.mainnet }}
 {{- else }}
       storage: {{ .Values.volumen.resources.storage.mainnet }}
-{{- end }} 
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name:  {{ include "besu-node.fullname" . }}-ethstats-pvc 
-  namespace: {{ .Release.Namespace }}
-spec:
-  storageClassName:  {{ include "besu-node.fullname" . }}-storage
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi
+{{- end }}

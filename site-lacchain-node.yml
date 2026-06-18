@@ -22,16 +22,6 @@
     - debug:
         msg: "Starting Installation"
 
-- hosts: tessera
-  gather_facts: yes
-  become: yes
-  vars:
-    install: true
-
-  roles:
-    - role: lacchain-tessera-node
-      when: tessera | bool
-
 - hosts: node
   gather_facts: yes
   become: yes
@@ -40,7 +30,7 @@
       prompt: "************************\n[0]:validator\n[1]:boot\n[2]:writer\nPlease, choose which type of node are you deploying"
       private: no
     - name: "networkT"
-      prompt: "************************\n[0]:mainnet-omega\n[1]:open-protestnet\n[2]:legacy-protestnet (DEPRECATED)\nPlease, choose in which network are you deploying"
+      prompt: "************************\n[0]:mainnet-omega\n[1]:testnet\nPlease, choose in which network are you deploying"
       private: no
 
   vars:
@@ -52,6 +42,3 @@
       when: (nodeTypeT == '1')  
     - role: lacchain-validator-node
       when: (nodeTypeT == '0')
-    - role: lacchain-tessera-node
-      when: (nodeTypeT == '3')  
-        

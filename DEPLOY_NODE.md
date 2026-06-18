@@ -11,8 +11,6 @@
 
 * During the process of node deploying, you will be asked about the network in which you would like to deploy your nodes. In order for your node to get permissioned, you need to complete the permissioning process first. In order to understand better what are the types of networks available and the permissioning processes for each network, please check the [README](https://github.com/LACNetNetworks/besu-networks/blob/master/README.md).
 
-* If an organization intends to create private channels, we have facilitated the integration with the private transaction manager [Tessera](https://docs.tessera.consensys.net/en/stable/). Tessera nodes must be deployed in a different instance (virtual machine), and therefore in order to enable Tessera nodes for private transactions you will require two virtual machines. It is worth mentioning that **Tessera is optional** and entities can join the networks only with Besu nodes.
-
 ## Minimum System Requirements
 
 Recommended hardware features for Besu node:
@@ -33,11 +31,6 @@ It is necessary to enable the following network ports in the machine in which we
 
   * **4545**: TCP - Port to establish RPC communication. (this port is used for applications that communicate with LACChain and may be leaked to the Internet)
 
-* **Tessera Node (Optional component for private transactions)**: 
-  * **4040**: TCP - Port to communicate with other Tessera nodes.
-  
-  * **4444**: TCP - Port for communication between Besu and Tessera.
-
 ## Pre-requisites
 
 ### Install Ansible ###
@@ -56,7 +49,7 @@ $ sudo apt-get install ansible
 
 ### Clone Repository ####
 
-To configure and install Besu and Tessera, you must clone this git repository in your **local machine**.
+To configure and install Besu, you must clone this git repository in your **local machine**.
 
 ```shell
 $ git clone https://github.com/LACNet-Networks/besu-networks
@@ -71,7 +64,7 @@ Make sure you have SSH access to nodes you're setting up. This step will vary de
 
 ### Preparing installation of a new node ###
 
-* There are three types of nodes (Bootnode / Validator / Writer) + the optional Tessera (for private side-chains) that can be created in the blockchain networks orchestrated by LACNet at this moment.
+* There are three types of nodes (Bootnode / Validator / Writer) that can be created in the blockchain networks orchestrated by LACNet at this moment.
 
 * After cloning the repository on the **local machine**, enter it and create a copy of the `inventory.example` file as `inventory`. Edit that file to add a line for the remote server where you are creating the new node. You can do it with a graphical tool or inside the shell:
 
@@ -86,24 +79,8 @@ Make sure you have SSH access to nodes you're setting up. This step will vary de
 Consider the following points:
 - Place the new line in the section corresponding to: `[node]`.
 - The first element on the new line is the IP or hostname where you can reach your remote machine from your local machine.
-- The value of `password` is the password that will be used to set up Tessera, for private transactions.
 - The value of `node_name` is the name you want for your node in the network monitoring tool.
 - The value of `node_email` is the email address you want to register for your node in the network monitoring tool. It's a good idea to provide the e-mail of the technical contact identified or to be identified in the registration form as part of the on-boarding process.
-
-* **[(Optional) Installation of Tessera (for private side-chains)]** 
-
-  * In your `inventory` file add a line below [tessera] role. This new line is the IP or hostname where you can reach your remote machine from your local machine. In this Ip or hostname will be installed Tessera node. 
-  * Additionally, change `tessera` variable located under the [all: vars] tag in same inventory file to `true`.
-  * The inventory file looks like similar to:
-  ```lang-toml
-     [tessera]
-     127.0.0.1 ---> Change for your IP Tessera instance
-     
-	 [all:vars]
-     password=default_password
-     node_email=default@email
-     ...
-     tessera=false ---> Set to true to install Tessera
 
 ### Deploying the new node ###
 
@@ -112,27 +89,19 @@ Consider the following points:
 [0]:validator
 [1]:boot
 [2]:writer
-[3]:tessera
 Please, choose which type of node are you deploying:
 
 [0]:mainnet-omega
 [1]:open-protestnet
-[2]:legacy-protestnet (DEPRECATED)
 
 Please, choose in which network are you deploying:
 ```
 So, if you want to deploy a writer node on mainnet-omega, first type 2 for writer, next it will be 0 for mainnet-omega and for open-protestnet 1.
 
-* To deploy a **node** with/without **tessera node**  execute the following command in your **local machine**. If needed, don't forget to set the private key with option `--private-key` and the remote user with option `-u` to SSH connection:
+* To deploy a **node** execute the following command in your **local machine**. If needed, don't forget to set the private key with option `--private-key` and the remote user with option `-u` to SSH connection:
 
 	```shell
 	$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u remote_user site-lacchain-node.yml
-	```
-* [**in case you have previously deployed a writer node without tessera**] To deploy a **tessera node** execute one of the following command in your **local machine**. If needed, don't forget to set the private key with option `--private-key` and the remote user with option `-u` to SSH connection:
-
-	```shell
-	*Tessera*
-	$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u remote_user site-lacchain-tessera.yml
 	```
 
 * At the end of the installation, if everything worked a BESU service will be created managed by Systemctl with **started** status.
@@ -145,7 +114,7 @@ ok: [x.x.x.x] => {
 }
 ```
 
-* If everything worked, an TESSERA service **(if it was chosen)** and a BESU service managed by Systemctl will be created with **started** status on each instance.
+* If everything worked, a BESU service managed by Systemctl will be created with **started** status on each instance.
 * After installation has finished you will have nginx installed on each instance chosen; it will be up and running and will allow secure and encrypted RPC connections (on the default 443 port). Certificates used to create the secure connections are self signed; it is up to you decide another way to secure RPC connections or continue using the provided  default service.
 * In order to be permissioned, now you need to follow [administrative steps of the permissioning process](https://github.com/LACNetNetworks/besu-networks/blob/master/README.md).
 * Once you are permissioned, you can verify that you are connected to other nodes in the network by following the steps detailed in [#issue33](https://github.com/lacchain/besu-network/issues/33).
@@ -165,17 +134,11 @@ Once your node is ready, you can start it up with this command in **remote machi
 <remote_machine>$ service pantheon start
 ```
 
-* For Tessera instance:
-```shell
-<remote_machine>$ service tessera start
-```
-
 ### Node Operation ###
 
  * If you need to restart the services, you can execute the following commands:
 
 ```shell
-<remote_machine>$ service tessera restart
 <remote_machine>$ service pantheon restart
 ```
 
@@ -200,13 +163,6 @@ Once your node is ready, you can start it up with this command in **remote machi
 	1.5.2
 	1.4.4
 	1.3.6
-
-	Current orion commit sha versions obtained from: https://github.com/PegaSysEng/orion/releases
-	Tested orion versions: 
-	1.6.0
-	1.5.2
-	1.3.2
-	1.4.0
 
 	Replace the ip address with your node ip address.
 

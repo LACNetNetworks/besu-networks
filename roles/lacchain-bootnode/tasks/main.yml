@@ -7,21 +7,16 @@
 - name: set open-protestnet as network chosen
   set_fact:
     network: "openprotestnet"
-  when: (networkT == '1')  
+  when: (networkT == '1')
 
-- name: set legacy-protestnet as network chosen
-  set_fact:
-    network: "legacyprotestnet"
+- name: reject deprecated legacy-protestnet network
+  fail:
+    msg: "legacy-protestnet (networkT='2') was deprecated and removed. Choose mainnet-omega (0) or open-protestnet (1)."
   when: (networkT == '2')
 
 - name: Deploying node
   debug:
     msg: You are deploying a BOOT on {{network}}
-
-- name: setting besu version
-  set_fact:
-    besu_release_version: "21.1.6"
-  when: (networkT == '2')
 
 - name: Install Bootnode
   import_tasks: "install.yaml"

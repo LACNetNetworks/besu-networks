@@ -12,7 +12,6 @@
     - { dest: "~/lacchain/data/keystore", mode: "0440" }
     - { dest: "~/lacchain/logs", mode: "0440" }
     - { dest: "~/lacchain/tmp", mode: "0440" }
-    - { dest: "~/lacchain/orion/keystore", mode: "0440"}
     - { dest: "~/lacchain/scripts", mode: "0440"}
 
 - name: initializing besu from genesis.json
@@ -49,19 +48,11 @@
   when: ((ansible_distribution |lower == 'centos'  or ansible_distribution |lower == 'redhat' or ansible_distribution |lower == 'rocky') and ansible_distribution_major_version >= "8") 
 
 
-- name: Generate Besu configuration file when Orion is Enabled
-  template:
-    src: "pantheon-orion-config-{{network}}.j2"
-    dest: "~/lacchain/config.toml"
-    mode: 0644
-  when: orion | bool
-
-- name: Generate Besu configuration file when Orion is Disabled
+- name: Generate Besu configuration file
   template:
     src: "pantheon-config-{{network}}.j2"
     dest: "~/lacchain/config.toml"
     mode: 0644
-  when: orion | bool == false
 
 - name: Copy service file to systemd
   copy:
@@ -74,13 +65,6 @@
     src: "{{ role_path }}/files/log.xml"
     dest: "~/lacchain/log.xml"
     mode: 0644
-
-- name: Copy Orion Public Key
-  copy:
-    src: "{{ role_path }}/files/nodeKey.pub"
-    dest: ~/lacchain/orion/keystore/nodeKey.pub
-    mode: 0644
-  when: orion | bool
 
 - name: Enable service Besu
   service:

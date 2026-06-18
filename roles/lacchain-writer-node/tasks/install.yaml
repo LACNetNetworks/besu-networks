@@ -35,20 +35,6 @@
   import_tasks: "install-java-centos8.yaml"
   when: ((ansible_distribution |lower == 'centos' or ansible_distribution |lower == 'oraclelinux' or ansible_distribution  |lower == 'rocky') and ansible_distribution_major_version >= "8")  
 
-- name: install docker for {{ ansible_distribution }}
-  import_tasks: "install-docker-ubuntu.yaml"
-  when: ansible_distribution |lower == 'ubuntu'
-
-- name: install docker for {{ ansible_distribution }}
-  import_tasks: "install-docker-redhat.yaml"
-  when: (ansible_distribution |lower == 'redhat') or (ansible_distribution |lower == 'centos' )  or (ansible_distribution |lower == 'rocky' ) 
-
-- name: install docker for {{ ansible_distribution }}
-  import_tasks: "install-docker-oracle.yaml"
-  when:  (ansible_distribution |lower == 'oraclelinux')
-
-
-
 - name: install Besu
   import_tasks: "install-besu.yaml"
 
@@ -67,8 +53,5 @@
 - name: install relay signer
   import_tasks: "install-relay-signer.yaml"
   when: (networkT == '0') or (networkT == '1') # relay-signer is disable on pro-testnet
-
-- name: start ethstats client             
-  import_tasks: "start-ethstats-client.yaml"
 
 

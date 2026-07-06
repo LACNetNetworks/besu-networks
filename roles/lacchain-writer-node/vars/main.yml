@@ -17,6 +17,10 @@ relayhub_address_mainnet: "0xEAA5420AF59305c5ecacCB38fcDe70198001d147"
 
 localpermissioning_address: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 
+# relay signer (testnet: se descarga el ejecutable de la release, no se clona el repo)
+# RC mientras sale de develop; al liberar desde master se sube a "v1.1.0"
+relay_signer_version: "v1.1.0-RC1"
+
 # vars for libsodium
 libsodium_base_url: https://download.libsodium.org/libsodium/releases
 libsodium_version: libsodium-1.0.17-stable.tar.gz

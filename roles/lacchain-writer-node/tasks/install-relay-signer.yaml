@@ -4,19 +4,29 @@
     path: "/root/lacchain/gas-relay-signer/config.toml"
   register: relay_signer
 
-- name: Download Relay Signer code
-  git:
-        repo: "https://github.com/LACNetNetworks/gas-management.git"
-        dest: "/root/lacchain/gas-relay-signer"
-        version: v1.0.1
-  when: (networkT == '1' and not relay_signer.stat.exists) 
+# testnet (open-protestnet): solo descargar el ejecutable desde la release, sin clonar el repo
+- name: Ensure Relay Signer directory exists (testnet)
+  file:
+        path: "/root/lacchain/gas-relay-signer"
+        state: directory
+        mode: '0755'
+  when: (networkT == '1' and not relay_signer.stat.exists)
 
+- name: Download Relay Signer binary from release (testnet)
+  get_url:
+        url: "https://github.com/LACNetNetworks/gas-management/releases/download/{{ relay_signer_version }}/gas-relay-signer-linux-amd64"
+        dest: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+        mode: '0755'
+        force: true
+  when: (networkT == '1' and not relay_signer.stat.exists)
+
+# mainnet: sigue clonando el repo en v1.0.1 (sin cambios)
 - name: Download Relay Signer code
   git:
         repo: "https://github.com/LACNetNetworks/gas-management.git"
         dest: "/root/lacchain/gas-relay-signer"
         version: v1.0.1
-  when: (networkT == '0' and not relay_signer.stat.exists) 
+  when: (networkT == '0' and not relay_signer.stat.exists)
 
 - name: semanage gas-relay-signer service on centos{{ansible_distribution_major_version}}
   shell: semanage fcontext -a -t bin_t '/root/lacchain/gas-relay-signer/gas-relay-signer'

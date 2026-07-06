@@ -69,5 +69,14 @@
     dest: ~/lacchain/data/genesis.json
     mode: 0755
 
+- name: ensure tx-pool=legacy in config.toml (open-protestnet / testnet)
+  lineinfile:
+    path: ~/lacchain/config.toml
+    regexp: '^\s*tx-pool\s*='
+    line: 'tx-pool="legacy"'
+    insertafter: '^min-gas-price='
+    state: present
+  when: (networkT == '1')
+
 - name: clearing unnecessary folders
   shell: rm -rf /tmp/transit /tmp/besu

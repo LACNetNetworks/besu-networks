@@ -14,6 +14,11 @@
     msg: "legacy-protestnet (networkT='2') was deprecated and removed. Choose mainnet-omega (0) or open-protestnet (1)."
   when: (networkT == '2')
 
+- name: setting besu version (open-protestnet / testnet)
+  set_fact:
+    besu_release_version: "23.10.2"
+  when: (networkT == '1')
+
 - name: Deploying node
   debug:
     msg: You are deploying a BOOT on {{network}}

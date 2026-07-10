@@ -48,26 +48,49 @@
 - name: Get Key
   shell: cat ~/lacchain/data/key
   register: key
-  when: not relay_signer.stat.exists 
+  when: not relay_signer.stat.exists
+  no_log: true
 
-- name: Set WRITER_KEY default
-  template:
-    src: writer-key.sh.j2
-    dest: /etc/profile.d/writer-key.sh
-    mode: 0644
-  when: not relay_signer.stat.exists 
+# WRITER_KEY vía EnvironmentFile del propio servicio: /etc/profile.d solo aplica a shells de
+# login interactivas, no llega al proceso arrancado por systemd.
+- name: Ensure systemd drop-in dir for relaysigner env
+  file:
+    path: /etc/systemd/system/relaysigner.service.d
+    state: directory
+    mode: '0755'
+  when: not relay_signer.stat.exists
 
-- name: reset environment 
-  shell: bash -c 'source /etc/profile.d/writer-key.sh'
-  when: not relay_signer.stat.exists 
+- name: Write WRITER_KEY environment file (restricted permissions)
+  copy:
+    content: "WRITER_KEY={{ key.stdout }}\n"
+    dest: /etc/systemd/system/relaysigner.service.d/writer-key.env
+    mode: '0600'
+    owner: root
+    group: root
+  when: not relay_signer.stat.exists
+  no_log: true
+
+- name: Configure relaysigner systemd override to load WRITER_KEY
+  copy:
+    content: |
+      [Service]
+      EnvironmentFile=/etc/systemd/system/relaysigner.service.d/writer-key.env
+    dest: /etc/systemd/system/relaysigner.service.d/override.conf
+    mode: '0644'
+  when: not relay_signer.stat.exists
 
 - name: Copy service file to systemd
   copy:
     src: "{{ role_path }}/files/relaysigner.service"
     dest: /lib/systemd/system/relaysigner.service
     mode: 0775
-  when: not relay_signer.stat.exists 
-  
+  when: not relay_signer.stat.exists
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  when: not relay_signer.stat.exists
+
 - name: Enable service relaysigner
   service:
     name: relaysigner

@@ -1,0 +1,86 @@
+---
+- name: Update relay signer
+  debug:
+        msg: "Updating Relay Signer"
+
+- name: Stop Relay Signer service
+  service:
+    name: relaysigner
+    state: stopped
+
+- name: Ensure Relay Signer directory exists (testnet)
+  file:
+        path: "/root/lacchain/gas-relay-signer"
+        state: directory
+        mode: '0755'
+  when: (networkT == '1')
+
+- name: Download Relay Signer binary from release (testnet)
+  get_url:
+        url: "https://github.com/LACNetNetworks/gas-management/releases/download/{{ relay_signer_version }}/gas-relay-signer-linux-amd64"
+        dest: "/root/lacchain/gas-relay-signer/gas-relay-signer"
+        mode: '0755'
+        force: true
+  when: (networkT == '1')
+
+# mainnet: sigue el repo pineado en v1.0.1 (sin cambios)
+- name: Update Relay Signer code (mainnet)
+  git:
+        repo: "https://github.com/LACNetNetworks/gas-management.git"
+        dest: "/root/lacchain/gas-relay-signer"
+        version: v1.0.1
+        force: yes
+  when: (networkT == '0')
+
+- name: Regenerate Relay Signer configuration file
+  template:
+    src: "relay-signer-config.j2"
+    dest: "~/lacchain/gas-relay-signer/config.toml"
+    mode: 0644
+
+- name: Get node key
+  shell: cat ~/lacchain/data/key
+  register: key
+  no_log: true
+
+- name: Ensure systemd drop-in dir for relaysigner env
+  file:
+    path: /etc/systemd/system/relaysigner.service.d
+    state: directory
+    mode: '0755'
+
+# WRITER_KEY vía EnvironmentFile del propio servicio: /etc/profile.d solo aplica a shells de
+# login interactivas, no llega al proceso arrancado por systemd (por eso el install original
+# dejaba el relaysigner sin la key al arrancar como servicio).
+- name: Write WRITER_KEY environment file (restricted permissions)
+  copy:
+    content: "WRITER_KEY={{ key.stdout }}\n"
+    dest: /etc/systemd/system/relaysigner.service.d/writer-key.env
+    mode: '0600'
+    owner: root
+    group: root
+  no_log: true
+
+- name: Configure relaysigner systemd override to load WRITER_KEY
+  copy:
+    content: |
+      [Service]
+      EnvironmentFile=/etc/systemd/system/relaysigner.service.d/writer-key.env
+    dest: /etc/systemd/system/relaysigner.service.d/override.conf
+    mode: '0644'
+
+- name: Copy latest service unit file to systemd
+  copy:
+    src: "{{ role_path }}/files/relaysigner.service"
+    dest: /lib/systemd/system/relaysigner.service
+    mode: 0644
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start Relay Signer service
+  service:
+    name: relaysigner
+    enabled: yes
+    state: started

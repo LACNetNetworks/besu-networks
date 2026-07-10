@@ -19,7 +19,7 @@ localpermissioning_address: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
 
 # relay signer (testnet: se descarga el ejecutable de la release, no se clona el repo)
 # RC mientras sale de develop; al liberar desde master se sube a "v1.1.0"
-relay_signer_version: "v1.1.0-RC1"
+relay_signer_version: "v1.1.0-RC2"
 
 # vars for libsodium
 libsodium_base_url: https://download.libsodium.org/libsodium/releases

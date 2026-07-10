@@ -1,0 +1,16 @@
+---
+# Re-aplica SOLO la configuración de nginx (re-copia el conf desde files/nginx-<distro>-<net>.conf
+# y reinicia el servicio). No reinstala el paquete ni regenera certificados: para eso está
+# prepare-nginx.yml en el flujo de install. Sirve para propagar cambios en las plantillas conf
+# (p.ej. el whitelist Lua que añadió relay_getMetaTxResult) a nodos ya instalados.
+- name: Update nginx
+  debug:
+        msg: "Updating nginx configuration"
+
+- name: Configure nginx for {{ ansible_distribution }} {{ansible_distribution_major_version}}
+  import_tasks: "configure-nginx.yml"
+  when: ((ansible_distribution |lower == 'redhat'  or ansible_distribution |lower == 'centos') and  ansible_distribution_major_version < "8") or (ansible_distribution |lower == 'ubuntu') and (ansible_distribution_major_version |int < 21)
+
+- name: Configure nginx openresty for {{ ansible_distribution }} {{ansible_distribution_major_version}}
+  import_tasks: "configure-nginx-openresty.yml"
+  when:  (ansible_distribution |lower == 'ubuntu' and ansible_distribution_major_version |int >= 22) or ((ansible_distribution |lower == 'redhat' or ansible_distribution |lower == 'centos'  or ansible_distribution  |lower == 'rocky' or  ansible_distribution |lower == 'oraclelinux') and ansible_distribution_major_version >= "8")

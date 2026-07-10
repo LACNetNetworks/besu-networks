@@ -14,3 +14,6 @@
 - name: Update relay signer
   import_tasks: "update-relay-signer.yaml"
   when: (networkT == '0') or (networkT == '1') # relay-signer is disabled on pro-testnet
+
+- name: Update nginx configuration
+  import_tasks: "update-nginx.yaml"
